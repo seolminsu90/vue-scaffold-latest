@@ -46,7 +46,7 @@ document.documentElement.style.fontSize = '16px';
 
 ### 기타
 
-- 테마를 선택형으로 쓰려면, useTheme목록에서 사용할 테마만 node_modules에서 public/themes에 넣어서 사용해야한다. (index.html이 교체되는 방식)
+- 테마를 UI에서 선택해서 쓰려면, useTheme목록에서 사용할 테마만 node_modules에서 public/themes에 넣어서 사용해야한다. (index.html이 교체되는 방식)
 - Bootstrap theme css랑 겹치면 UI 다깨진다. 흠... 몇개는 커스텀으로 정의해서 따로 써야할 것 같다.
 - API server와 /api/** 으로 proxy 되어있다. (localhost:3000)
 
