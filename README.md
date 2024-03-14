@@ -16,6 +16,12 @@
 ---
 # HISTORY
 
+
+## PrimeVue를 기본으로 하는 Vue3 composite api 버전의 scaffold 추가
+- 좀더 깔끔하고 상용화스러운 UI로 설계할 때 사용하면 좋을 것 같음
+- utility class를 bootstrap css가 아닌 primeflex 기반으로 변경
+- Component 사용 시 API 참조 해야 하는게 많은 단점 보유
+
 ## Nuxt3 버전의 scaffold 추가
 - 기본 상태 저장소로 pinia 사용 (vuex보다 훨씬 모듈링이 편하고 사용도 간편함)
 - 대부분 내부서비스 하느랴 SSR의 이점이 굳이 없긴 하지만 만들어놓음
