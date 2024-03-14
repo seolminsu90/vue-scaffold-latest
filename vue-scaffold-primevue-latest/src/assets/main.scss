@@ -1,0 +1,16 @@
+@import 'normalize.css';
+/* Order */
+@layer reset, primevue;
+
+/* Reset CSS */
+@layer reset {
+  button,
+  input {
+    /* CSS to Reset */
+  }
+}
+
+html {
+  font-size: 14px; // Global size setup
+}
+
