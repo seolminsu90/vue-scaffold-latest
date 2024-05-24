@@ -48,8 +48,8 @@
                                         min="0"
                                         v-model="model.startTime.h"
                                         ref="startHour"
-                                        @keydown.up="upTimeData($event, 'h')"
-                                        @keydown.down="downTimeData($event, 'h')"
+                                        @keydown.up="upTimeData($event, 'h', model.startTime)"
+                                        @keydown.down="downTimeData($event, 'h', model.startTime)"
                                         @keyup="checkAndNext($event, 'h', model.startTime)"
                                     />
                                     <div class="arrow-btn-wrap">
@@ -64,8 +64,8 @@
                                         min="0"
                                         v-model="model.startTime.m"
                                         ref="startMinute"
-                                        @keydown.up="upTimeData($event, 'm')"
-                                        @keydown.down="downTimeData($event, 'm')"
+                                        @keydown.up="upTimeData($event, 'm', model.startTime)"
+                                        @keydown.down="downTimeData($event, 'm', model.startTime)"
                                         @keyup="checkAndNext($event, 'm', model.startTime)"
                                     />
                                     <div class="arrow-btn-wrap">
@@ -81,8 +81,8 @@
                                             min="0"
                                             v-model="model.startTime.s"
                                             ref="startSecond"
-                                            @keydown.up="upTimeData($event, 's')"
-                                            @keydown.down="downTimeData($event, 's')"
+                                            @keydown.up="upTimeData($event, 's', model.startTime)"
+                                            @keydown.down="downTimeData($event, 's', model.startTime)"
                                             @keyup="checkAndNext($event, 's', model.startTime)"
                                         />
                                         <div class="arrow-btn-wrap">
@@ -104,8 +104,8 @@
                                             min="0"
                                             v-model="model.endTime.h"
                                             ref="endHour"
-                                            @keydown.up="upTimeData($event, 'h')"
-                                            @keydown.down="downTimeData($event, 'h')"
+                                            @keydown.up="upTimeData($event, 'h', model.endTime)"
+                                            @keydown.down="downTimeData($event, 'h', model.endTime)"
                                             @keyup="checkAndNext($event, 'h', model.endTime)"
                                         />
                                         <div class="arrow-btn-wrap">
@@ -120,8 +120,8 @@
                                             min="0"
                                             v-model="model.endTime.m"
                                             ref="endMinute"
-                                            @keydown.up="upTimeData($event, 'm')"
-                                            @keydown.down="downTimeData($event, 'm')"
+                                            @keydown.up="upTimeData($event, 'm', model.endTime)"
+                                            @keydown.down="downTimeData($event, 'm', model.endTime)"
                                             @keyup="checkAndNext($event, 'm', model.endTime)"
                                         />
                                         <div class="arrow-btn-wrap">
@@ -137,8 +137,8 @@
                                                 min="0"
                                                 v-model="model.endTime.s"
                                                 ref="endSecond"
-                                                @keydown.up="upTimeData($event, 's')"
-                                                @keydown.down="downTimeData($event, 's')"
+                                                @keydown.up="upTimeData($event, 's', model.endTime)"
+                                                @keydown.down="downTimeData($event, 's', model.endTime)"
                                                 @keyup="checkAndNext($event, 's', model.endTime)"
                                             />
                                             <div class="arrow-btn-wrap">
@@ -355,22 +355,43 @@ const endHour = ref(null)
 const endMinute = ref(null)
 const endSecond = ref(null)
 
-const upTimeData = (e, type) => {
+const upTimeData = (e, type, _ref) => {
     const min = 0
     const max = type === 'h' ? 23 : 59
     const nextVal = Number(e.target.value) + 1
+
+    if (props.isRelationTimes) {
+        if (max < nextVal && type === 'm') {
+            upData(_ref, 'h')
+        } else if (max < nextVal && type === 's') {
+            upData(_ref, 'm')
+        }
+    }
+
     e.target.value = String(max < nextVal ? min : nextVal).padStart(2, '0')
+    _ref[type] = e.target.value
 }
-const downTimeData = (e, type) => {
+const downTimeData = (e, type, _ref) => {
     const min = 0
     const max = type === 'h' ? 23 : 59
     const nextVal = Number(e.target.value) - 1
+
+    if (props.isRelationTimes) {
+        if (min > nextVal && type === 'm') {
+            downData(_ref, 'h')
+        } else if (min > nextVal && type === 's') {
+            downData(_ref, 'm')
+        }
+    }
+
     e.target.value = String(min > nextVal ? max : nextVal).padStart(2, '0')
+    _ref[type] = e.target.value
 }
 const checkAndNext = (e, type, _ref) => {
     const max = type === 'h' ? 23 : 59
     e.target.value = e.target.value.replace(/[^\d-]/g, '')
     const value = Number(e.target.value)
+
     if (value < 0) {
         e.target.value = String(max)
     } else if (value > max) {
