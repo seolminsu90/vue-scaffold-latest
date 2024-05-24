@@ -131,8 +131,20 @@ $ms-calendar-holyday-color: #da2525;
         justify-content: center;
         margin-bottom: 0;
 
+        .is-only-one {
+          &:after {
+            content: "";
+            display: block;
+            margin: .2em;
+          }
+        }
+
         &.column {
           flex-direction: column;
+
+          .is-only-one {
+            display: none;
+          }
         }
 
         i {

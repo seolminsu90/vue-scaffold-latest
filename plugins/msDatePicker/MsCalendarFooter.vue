@@ -1,9 +1,10 @@
 <template>
     <div class="ms-calendar-footer">
         <div class="ms-display-wrap">
-            <div class="d-flex-center">
-                <div class="ms-datetime-display column" v-if="computedDisplayShow">
+            <div class="d-flex-center" v-if="type !== 'time'">
+                <div class="ms-datetime-display" v-if="computedDisplayShow" :class="{ column: computedSubDisplayShow }">
                     <div class="p-0 ms-date" v-if="type !== 'time'">{{ computedStart }}</div>
+                    <div class="is-only-one"></div>
                     <div class="p-0 ms-time" v-if="['datetime', 'time'].includes(type)">{{ computedStartTime }}</div>
                 </div>
                 <template v-if="computedSubDisplayShow">
