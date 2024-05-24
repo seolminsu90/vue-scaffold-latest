@@ -32,10 +32,10 @@ app.use(MsDatepicker)
 |------|---|----|
 |onCalendarFocus|Function|캘린더 영역에 포커싱될 때 호출되는 함수를 정의합니다|
 |inputClass|String or Array or Function|Input 영역의 스타일 클래스를 재정의합니다.|
-|range|Boolean|구간 선택기로 사용 여부를 선택합니다.*기본값 false*|
-|isRelationTimes|Boolean|시,분,초를 수정할 때 서로 관여할 지 여부를 결정합니다. *기본값 true* false 로 설정할 경우, 예를 들어 59초를 초과하도라도 분 데이터는 수정되지 않습니다.|
-|isAutoSwap|Boolean|날짜시간 선택기에서 날짜를 선택하면 자동으로 시간 선택으로 전환될 지 여부를 결정합니다. *기본값 true*|
-|type|String|날짜 타입을 지정합니다 *기본값 datetime* datetime or time or date|
+|range|Boolean|구간 선택기로 사용 여부를 선택합니다.*(기본값 false)*|
+|isRelationTimes|Boolean|시,분,초를 수정할 때 서로 관여할 지 여부를 결정합니다. *(기본값 true)* false 로 설정할 경우, 예를 들어 59초를 초과하도라도 분 데이터는 수정되지 않습니다.|
+|isAutoSwap|Boolean|날짜시간 선택기에서 날짜를 선택하면 자동으로 시간 선택으로 전환될 지 여부를 결정합니다. *(기본값 true)*|
+|type|String|날짜 타입을 지정합니다 *(기본값 datetime)* datetime or time or date|
 |maxDate|String|YYYY-MM-DD 형태로 최대 선택 가능 날짜를 설정합니다.|
 |minDate|String|YYYY-MM-DD 형태로 최소 선택 가능 날짜를 설정합니다.|
-|isUseSecond|Boolean|second를 사용할 지 여부를 결정합니다. *기본값 true* false로 지정해도 리턴 타입은 yyyy-MM-dd HH:mm:00 으로 결정됩니다.|
+|isUseSecond|Boolean|second를 사용할 지 여부를 결정합니다. *(기본값 true)* false로 지정해도 리턴 타입은 yyyy-MM-dd HH:mm:00 으로 결정됩니다.|
