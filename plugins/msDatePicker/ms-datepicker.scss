@@ -1,18 +1,22 @@
-$ms-calender-color: #f47c3c;
+$ms-calender-color: #9790f5;
 $ms-calender-border-color: #ccc;
 $ms-calender-input-border-color: #707070;
 $ms-calendar-text-color: #fff;
-$ms-calendar-text-btn-color: #fff;
-$ms-calendar-btn-bg: #414141;
-$ms-calendar-btn-bg-hover: #1f1f1f;
-$ms-calendar-icon-bg-hover: #eee;
+$ms-calendar-text-btn-color: #4f4f4f;
+$ms-calendar-btn-bg: #dfe8f5;
+$ms-calendar-btn-bg-hover: #e4e8ef;
+$ms-calendar-close-btn-bg: #cad9f3;
+$ms-calendar-close-btn-bg-hover: #d9e3f6;
+$ms-calendar-icon-bg-hover: #fcf9f7;
 $ms-calendar-bg: #fff;
 $ms-calendar-font-size: 15px;
-$ms-calendar-selected-day-color: #fff;
-$ms-calendar-selected-range-color: #f8b395;
-$ms-calendar-selected-day-bg-color: #f89971;
-$ms-calendar-arrow-color: #883b12;
-$ms-calendar-arrow-hover-color: #d24b03;
+$ms-calendar-font-color: #4f4f4f;
+$ms-calendar-selected-day-color: #4f4f4f;
+$ms-calendar-selected-range-color: #dfe8f5;
+$ms-calendar-selected-day-bg-color: #cad9f3;
+$ms-calendar-arrow-color: #7c97d3;
+$ms-calendar-arrow-hover-color: #5b60bb;
+$ms-calendar-holyday-color: #da2525;
 
 .ms-calendar-wrap {
   position: absolute;
@@ -104,26 +108,39 @@ $ms-calendar-arrow-hover-color: #d24b03;
       background-color: $ms-calendar-icon-bg-hover;
       cursor: pointer;
     }
+
+    & > span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 
   .ms-calendar-footer {
-    padding-top: 1em;
+    padding-top: 0.5em;
 
     .ms-display-wrap {
+
+      .result-separator {
+        padding: 0 0.5rem;
+      }
+
       .ms-datetime-display {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.3em;
-        margin-bottom: 0.15em;
+        margin-bottom: 0;
+
+        &.column {
+          flex-direction: column;
+        }
 
         i {
           margin-right: 0.25em;
         }
 
         .ms-date, .ms-time {
-          text-align: center;
-          padding: 0.2em 0.5em;
+          padding: 0.1em 0.5em;
           font-size: 0.8em;
           flex-grow: 1;
           white-space: nowrap !important;
@@ -133,6 +150,7 @@ $ms-calendar-arrow-hover-color: #d24b03;
 
     .ms-button-wrap {
       margin-top: 0.5em;
+      gap: 0.2em;
     }
 
     .button-text {
@@ -148,8 +166,16 @@ $ms-calendar-arrow-hover-color: #d24b03;
       padding: 5px 5px 7px;
       width: 100%;
 
+      &.close {
+        background-color: $ms-calendar-close-btn-bg;
+      }
+
       &:hover {
         background-color: $ms-calendar-btn-bg-hover;
+
+        &.close {
+          background-color: $ms-calendar-close-btn-bg-hover;
+        }
       }
     }
   }
@@ -243,10 +269,15 @@ $ms-calendar-arrow-hover-color: #d24b03;
       &.week {
         font-size: 0.6em;
         color: $ms-calender-color;
+        font-weight: 600;
       }
 
       &.blur, &.disabled {
         opacity: 0.5;
+      }
+
+      &.holyday {
+        color: $ms-calendar-holyday-color;
       }
 
       &.disabled {
@@ -315,6 +346,7 @@ $ms-calendar-arrow-hover-color: #d24b03;
   font-size: 0.8em;
   font-weight: 400;
   line-height: 1.5;
+  color: $ms-calendar-font-color;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -330,6 +362,18 @@ $ms-calendar-arrow-hover-color: #d24b03;
   }
 }
 
+.input-x-btn {
+  color: $ms-calendar-font-color;
+  opacity: 0.6;
+  position: absolute;
+  right: 7px;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
 .calendar-dim {
   position: fixed;
   width: 100vw;
@@ -337,4 +381,13 @@ $ms-calendar-arrow-hover-color: #d24b03;
   z-index: 1000;
   top: 0;
   left: 0;
+}
+
+.fw-bold {
+  font-weight: 600;
+}
+
+.icon-text {
+  font-size: 0.8em;
+  margin-left: 0.5em;
 }

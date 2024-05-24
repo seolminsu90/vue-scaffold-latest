@@ -1,12 +1,15 @@
 <template>
     <div class="ms-calendar-component position-relative" @click.stop.prevent="showCalandar = true">
-        <input
-            class="ms-calendar-component-input"
-            type="text"
-            readonly
-            :class="typeof inputClass === 'function' ? inputClass() : inputClass"
-            :value="computedModelValue"
-        />
+        <div class="position-relative d-flex-center">
+            <input
+                class="ms-calendar-component-input"
+                type="text"
+                readonly
+                :class="typeof inputClass === 'function' ? inputClass() : inputClass"
+                :value="computedModelValue"
+            />
+            <i v-if="modelValue" class="fa-solid fa-xmark input-x-btn" @click.stop.prevent="modelValue = null"></i>
+        </div>
         <div class="calendar-dim" v-if="showCalandar" @click.stop.prevent="showCalandar = false"></div>
         <transition name="ms-slide-down">
             <div class="ms-calendar-wrap" v-if="showCalandar" @click.stop.prevent="onCalendarFocus">
@@ -17,6 +20,7 @@
                         <div
                             class="ms-calendar-day"
                             :class="{
+                                holyday: day.w === 'sun' || day.w === 'sat',
                                 today: day.today,
                                 blur: day.blur,
                                 selected: isSelected(day),
@@ -127,8 +131,14 @@
                     </div>
                 </transition>
                 <div class="ms-calendar-icon-wrap" @click="toggleCalendarView" v-if="isPossibleToggle">
-                    <i class="fa-regular fa-calendar-check" v-if="!isCalendarView" />
-                    <i class="fa-regular fa-clock" v-else-if="isCalendarView" />
+                    <span v-if="!isCalendarView">
+                        <i class="fa-regular fa-calendar-check" />
+                        <span class="icon-text">날짜 선택</span>
+                    </span>
+                    <span v-else-if="isCalendarView">
+                        <i class="fa-regular fa-clock" />
+                        <span class="icon-text">시간 선택</span>
+                    </span>
                 </div>
                 <MsCalendarFooter :range="props.range" :results="model" @ok="onOk" @close="onClose" :type="type" />
             </div>
