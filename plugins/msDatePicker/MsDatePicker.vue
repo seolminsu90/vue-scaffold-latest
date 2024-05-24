@@ -48,6 +48,8 @@
                                         min="0"
                                         v-model="model.startTime.h"
                                         ref="startHour"
+                                        @keydown.up="upTimeData($event, 'h')"
+                                        @keydown.down="downTimeData($event, 'h')"
                                         @keyup="checkAndNext($event, 'h', model.startTime)"
                                     />
                                     <div class="arrow-btn-wrap">
@@ -62,6 +64,8 @@
                                         min="0"
                                         v-model="model.startTime.m"
                                         ref="startMinute"
+                                        @keydown.up="upTimeData($event, 'm')"
+                                        @keydown.down="downTimeData($event, 'm')"
                                         @keyup="checkAndNext($event, 'm', model.startTime)"
                                     />
                                     <div class="arrow-btn-wrap">
@@ -76,6 +80,8 @@
                                         min="0"
                                         v-model="model.startTime.s"
                                         ref="startSecond"
+                                        @keydown.up="upTimeData($event, 's')"
+                                        @keydown.down="downTimeData($event, 's')"
                                         @keyup="checkAndNext($event, 's', model.startTime)"
                                     />
                                     <div class="arrow-btn-wrap">
@@ -91,7 +97,15 @@
                                 <div class="ms-timer-text">종료 시간</div>
                                 <div class="d-flex-center">
                                     <div class="position-relative hover-arrow-show" @focusin="isFocus" @focusout="isBlur">
-                                        <input type="text" min="0" v-model="model.endTime.h" ref="endHour" @keyup="checkAndNext($event, 'h', model.endTime)" />
+                                        <input
+                                            type="text"
+                                            min="0"
+                                            v-model="model.endTime.h"
+                                            ref="endHour"
+                                            @keydown.up="upTimeData($event, 'h')"
+                                            @keydown.down="downTimeData($event, 'h')"
+                                            @keyup="checkAndNext($event, 'h', model.endTime)"
+                                        />
                                         <div class="arrow-btn-wrap">
                                             <i class="fa-solid fa-caret-up" @click="upData(model.endTime, 'h')"></i>
                                             <i class="fa-solid fa-caret-down" @click="downData(model.endTime, 'h')"></i>
@@ -104,6 +118,8 @@
                                             min="0"
                                             v-model="model.endTime.m"
                                             ref="endMinute"
+                                            @keydown.up="upTimeData($event, 'm')"
+                                            @keydown.down="downTimeData($event, 'm')"
                                             @keyup="checkAndNext($event, 'm', model.endTime)"
                                         />
                                         <div class="arrow-btn-wrap">
@@ -118,6 +134,8 @@
                                             min="0"
                                             v-model="model.endTime.s"
                                             ref="endSecond"
+                                            @keydown.up="upTimeData($event, 's')"
+                                            @keydown.down="downTimeData($event, 's')"
                                             @keyup="checkAndNext($event, 's', model.endTime)"
                                         />
                                         <div class="arrow-btn-wrap">
@@ -327,12 +345,24 @@ const endHour = ref(null)
 const endMinute = ref(null)
 const endSecond = ref(null)
 
+const upTimeData = (e, type) => {
+    const min = 0
+    const max = type === 'h' ? 23 : 59
+    const nextVal = Number(e.target.value) + 1
+    e.target.value = String(max < nextVal ? min : nextVal).padStart(2, '0')
+}
+const downTimeData = (e, type) => {
+    const min = 0
+    const max = type === 'h' ? 23 : 59
+    const nextVal = Number(e.target.value) - 1
+    e.target.value = String(min > nextVal ? max : nextVal).padStart(2, '0')
+}
 const checkAndNext = (e, type, _ref) => {
     const max = type === 'h' ? 23 : 59
-    e.target.value = e.target.value.replace(/\D/g, '')
-    const value = parseInt(e.target.value)
+    e.target.value = e.target.value.replace(/[^\d-]/g, '')
+    const value = Number(e.target.value)
     if (value < 0) {
-        e.target.value = '00'
+        e.target.value = String(max)
     } else if (value > max) {
         e.target.value = '00'
     } else {
