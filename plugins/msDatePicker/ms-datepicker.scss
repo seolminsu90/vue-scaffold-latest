@@ -245,8 +245,12 @@ $ms-calendar-arrow-hover-color: #d24b03;
         color: $ms-calender-color;
       }
 
-      &.blur {
+      &.blur, &.disabled {
         opacity: 0.5;
+      }
+
+      &.disabled {
+        cursor: not-allowed;
       }
     }
   }

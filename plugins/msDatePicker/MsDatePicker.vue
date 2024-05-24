@@ -23,6 +23,7 @@
                                 start: isCompletedStart(day),
                                 end: isCompletedEnd(day),
                                 'select-range': isSelectRange(day),
+                                disabled: isDisableDay(day),
                             }"
                             v-for="(day, idx) in cal"
                             :key="idx"
@@ -141,7 +142,7 @@ import './ms-datepicker.scss'
 import MsCalendarHeader from './MsCalendarHeader.vue'
 import MsCalendarFooter from './MsCalendarFooter.vue'
 
-const { generate, WEEKS, formatDateTime, formatDate, formatTime, isAfter, parseDateDay, parseHHMMSS, diffDay } = useCalendarData()
+const { generate, WEEKS, formatDateTime, formatDate, formatTime, isAfter, parseDateDay, parseHHMMSS, diffDay, parseYYYYMMDD } = useCalendarData()
 const cal = ref([])
 const isCalendarView = ref(true)
 const modelValue = defineModel()
@@ -239,6 +240,8 @@ const model = ref({
 })
 
 const selectDay = (day) => {
+    if (isDisableDay(day)) return
+
     if (props.range) {
         if (!model.value.startDate) model.value.startDate = day
         else {
@@ -295,6 +298,17 @@ const isPossibleToggle = computed(() => {
 const isCompletedStart = (day) => model.value.startDate && model.value.endDate && model.value.startDate.f === day.f
 const isCompletedEnd = (day) => model.value.endDate && model.value.endDate && model.value.endDate.f === day.f
 const isSelectRange = (day) => model.value.startDate && isAfter(day, model.value.startDate) && model.value.endDate && isAfter(model.value.endDate, day)
+
+const isDisableDay = (day) => {
+    if (props.maxDate) {
+        const maxDay = parseYYYYMMDD(props.maxDate)
+        return isAfter(day, maxDay)
+    }
+    if (props.minDate) {
+        const minDay = parseYYYYMMDD(props.minDate)
+        return isAfter(minDay, day)
+    }
+}
 
 const startHour = ref(null)
 const startMinute = ref(null)
