@@ -73,22 +73,24 @@
                                         <i class="fa-solid fa-caret-down" @click="downData(model.startTime, 'm')"></i>
                                     </div>
                                 </div>
-                                <span>:</span>
-                                <div class="position-relative hover-arrow-show" @focusin="isFocus" @focusout="isBlur">
-                                    <input
-                                        type="text"
-                                        min="0"
-                                        v-model="model.startTime.s"
-                                        ref="startSecond"
-                                        @keydown.up="upTimeData($event, 's')"
-                                        @keydown.down="downTimeData($event, 's')"
-                                        @keyup="checkAndNext($event, 's', model.startTime)"
-                                    />
-                                    <div class="arrow-btn-wrap">
-                                        <i class="fa-solid fa-caret-up" @click="upData(model.startTime, 's')"></i>
-                                        <i class="fa-solid fa-caret-down" @click="downData(model.startTime, 's')"></i>
+                                <template v-if="isUseSecond">
+                                    <span>:</span>
+                                    <div class="position-relative hover-arrow-show" @focusin="isFocus" @focusout="isBlur">
+                                        <input
+                                            type="text"
+                                            min="0"
+                                            v-model="model.startTime.s"
+                                            ref="startSecond"
+                                            @keydown.up="upTimeData($event, 's')"
+                                            @keydown.down="downTimeData($event, 's')"
+                                            @keyup="checkAndNext($event, 's', model.startTime)"
+                                        />
+                                        <div class="arrow-btn-wrap">
+                                            <i class="fa-solid fa-caret-up" @click="upData(model.startTime, 's')"></i>
+                                            <i class="fa-solid fa-caret-down" @click="downData(model.startTime, 's')"></i>
+                                        </div>
                                     </div>
-                                </div>
+                                </template>
                             </div>
                         </div>
                         <template v-if="props.range">
@@ -127,22 +129,24 @@
                                             <i class="fa-solid fa-caret-down" @click="downData(model.endTime, 'm')"></i>
                                         </div>
                                     </div>
-                                    <span>:</span>
-                                    <div class="position-relative hover-arrow-show" @focusin="isFocus" @focusout="isBlur">
-                                        <input
-                                            type="text"
-                                            min="0"
-                                            v-model="model.endTime.s"
-                                            ref="endSecond"
-                                            @keydown.up="upTimeData($event, 's')"
-                                            @keydown.down="downTimeData($event, 's')"
-                                            @keyup="checkAndNext($event, 's', model.endTime)"
-                                        />
-                                        <div class="arrow-btn-wrap">
-                                            <i class="fa-solid fa-caret-up" @click="upData(model.endTime, 's')"></i>
-                                            <i class="fa-solid fa-caret-down" @click="downData(model.endTime, 's')"></i>
+                                    <template v-if="isUseSecond">
+                                        <span>:</span>
+                                        <div class="position-relative hover-arrow-show" @focusin="isFocus" @focusout="isBlur">
+                                            <input
+                                                type="text"
+                                                min="0"
+                                                v-model="model.endTime.s"
+                                                ref="endSecond"
+                                                @keydown.up="upTimeData($event, 's')"
+                                                @keydown.down="downTimeData($event, 's')"
+                                                @keyup="checkAndNext($event, 's', model.endTime)"
+                                            />
+                                            <div class="arrow-btn-wrap">
+                                                <i class="fa-solid fa-caret-up" @click="upData(model.endTime, 's')"></i>
+                                                <i class="fa-solid fa-caret-down" @click="downData(model.endTime, 's')"></i>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </template>
                                 </div>
                             </div>
                         </template>
@@ -158,7 +162,7 @@
                         <span class="icon-text">시간 선택</span>
                     </span>
                 </div>
-                <MsCalendarFooter :range="props.range" :results="model" @ok="onOk" @close="onClose" :type="type" />
+                <MsCalendarFooter :range="props.range" :results="model" @ok="onOk" @close="onClose" :type="type" :second-display="isUseSecond" />
             </div>
         </transition>
     </div>
@@ -170,15 +174,15 @@ import './ms-datepicker.scss'
 import MsCalendarHeader from './MsCalendarHeader.vue'
 import MsCalendarFooter from './MsCalendarFooter.vue'
 
-const { generate, WEEKS, formatDateTime, formatDate, formatTime, isAfter, parseDateDay, parseHHMMSS, diffDay, parseYYYYMMDD } = useCalendarData()
+const { generate, WEEKS, formatDateTime, formatDate, formatTime, isAfter, parseDateDay, parseHHMMSS, diffDay, parseYYYYMMDD, removeSecond } = useCalendarData()
 const cal = ref([])
 const isCalendarView = ref(true)
 const modelValue = defineModel()
 const computedModelValue = computed(() => {
     if (Array.isArray(modelValue.value)) {
-        return modelValue.value.join(' ~ ')
+        return modelValue.value.map((m) => (props.isUseSecond ? m : removeSecond(m))).join(' ~ ')
     }
-    return modelValue.value
+    return props.isUseSecond ? modelValue.value : removeSecond(modelValue.value)
 })
 
 const props = defineProps({
@@ -217,6 +221,10 @@ const props = defineProps({
         type: String, //YYYY-MM-DD
         required: false,
     },
+    isUseSecond: {
+        type: Boolean,
+        default: true,
+    },
 })
 
 const showCalandar = ref(false)
@@ -233,20 +241,22 @@ const onClose = () => (showCalandar.value = false)
 const onOk = () => {
     if (props.range) {
         if (props.type === 'datetime') {
-            modelValue.value = [formatDateTime(model.value.startDate, model.value.startTime), formatDateTime(model.value.endDate, model.value.endTime)]
+            modelValue.value = [
+                formatDateTime(model.value.startDate, model.value.startTime, props.isUseSecond),
+                formatDateTime(model.value.endDate, model.value.endTime, props.isUseSecond),
+            ]
         } else if (props.type === 'date') {
             modelValue.value = [formatDate(model.value.startDate), formatDate(model.value.endDate)]
         } else if (props.type === 'time') {
-            console.log(model.value, formatDate(model.value.endTime))
-            modelValue.value = [formatTime(model.value.startTime), formatTime(model.value.endTime)]
+            modelValue.value = [formatTime(model.value.startTime, props.isUseSecond), formatTime(model.value.endTime, props.isUseSecond)]
         }
     } else {
         if (props.type === 'datetime') {
-            modelValue.value = formatDateTime(model.value.startDate, model.value.startTime)
+            modelValue.value = formatDateTime(model.value.startDate, model.value.startTime, props.isUseSecond)
         } else if (props.type === 'date') {
             modelValue.value = formatDate(model.value.startDate)
         } else if (props.type === 'time') {
-            modelValue.value = formatTime(model.value.startTime)
+            modelValue.value = formatTime(model.value.startTime, props.isUseSecond)
         }
     }
     onClose()

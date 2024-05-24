@@ -91,23 +91,23 @@ export const useCalendarData = () => {
         return sameIsAfter
     }
 
-    function formatDateTime(date, time) {
+    function formatDateTime(date, time, isUseSecond) {
         if (!date || !time) return null
         const year = date.y
         const month = String(date.m).padStart(2, '0')
         const day = String(date.d).padStart(2, '0')
         const hour = String(time.h).padStart(2, '0')
         const minute = String(time.m).padStart(2, '0')
-        const second = String(time.s).padStart(2, '0')
+        const second = isUseSecond ? String(time.s).padStart(2, '0') : '00'
 
         return `${year}-${month}-${day} ${hour}:${minute}:${second}`
     }
 
-    function formatTime(time) {
+    function formatTime(time, isUseSecond) {
         if (!time) return null
         const hour = String(time.h).padStart(2, '0')
         const minute = String(time.m).padStart(2, '0')
-        const second = String(time.s).padStart(2, '0')
+        const second = isUseSecond ? String(time.s).padStart(2, '0') : '00'
         return `${hour}:${minute}:${second}`
     }
 
@@ -122,6 +122,21 @@ export const useCalendarData = () => {
         } catch (e) {
             return null
         }
+    }
+
+    function removeSecond(dateString) {
+        let datePart, timePart
+        if (!dateString) return null
+        const split = dateString.split(' ')
+        if (split.length === 0) return null
+        else if (split.length === 1) {
+            timePart = parseHHMMSS(dateString.split(' ')[0])
+        } else {
+            datePart = dateString.split(' ')[0]
+            timePart = parseHHMMSS(dateString.split(' ')[1])
+        }
+
+        return (datePart ? `${datePart} ` : '') + `${timePart.h}:${timePart.m}`
     }
 
     function parseHHMMSS(hhmmss) {
@@ -159,6 +174,7 @@ export const useCalendarData = () => {
         parseYYYYMMDD,
         parseDateDay,
         diffDay,
+        removeSecond,
         WEEKS,
     }
 }

@@ -55,7 +55,8 @@ const computedStartTime = computed(() => {
     if (props.results && props.results.startTime) {
         const d = props.results.startTime
         if (d.h.length > 2 || d.m.length > 2 || d.s.length > 2) return null
-        return `${String(d.h).padStart(2, '0')}:${String(d.m).padStart(2, '0')}:${String(d.s).padStart(2, '0')}`
+        let display = `${String(d.h).padStart(2, '0')}:${String(d.m).padStart(2, '0')}`
+        return props.secondDisplay ? `${display}:${String(d.s).padStart(2, '0')}` : display
     }
     return null
 })
@@ -72,11 +73,12 @@ const computedEndTime = computed(() => {
     if (props.results && props.results.endTime) {
         const d = props.results.endTime
         if (d.h.length > 2 || d.m.length > 2 || d.s.length > 2) return null
-        return `${String(d.h).padStart(2, '0')}:${String(d.m).padStart(2, '0')}:${String(d.s).padStart(2, '0')}`
+        let display = `${String(d.h).padStart(2, '0')}:${String(d.m).padStart(2, '0')}`
+        return props.secondDisplay ? `${display}:${String(d.s).padStart(2, '0')}` : display
     }
     return null
 })
 
-const props = defineProps(['range', 'results', 'type'])
+const props = defineProps(['range', 'results', 'type', 'secondDisplay'])
 const emit = defineEmits(['ok', 'close'])
 </script>
