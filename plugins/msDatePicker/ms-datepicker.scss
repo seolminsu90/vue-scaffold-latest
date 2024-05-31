@@ -14,6 +14,7 @@ $ms-calendar-font-color: #4f4f4f;
 $ms-calendar-selected-day-color: #4f4f4f;
 $ms-calendar-selected-range-color: #dfe8f5;
 $ms-calendar-selected-day-bg-color: #cad9f3;
+$ms-calendar-selected-day-same-bg-color: #ceb9ef;
 $ms-calendar-arrow-color: #7c97d3;
 $ms-calendar-arrow-hover-color: #5b60bb;
 $ms-calendar-holyday-color: #da2525;
@@ -239,6 +240,11 @@ $ms-calendar-holyday-color: #da2525;
       align-items: center;
       justify-content: center;
       font-size: 0.8em;
+
+      &.selected.start.end{
+        border-radius: 30% !important;
+        background-color: $ms-calendar-selected-day-same-bg-color;
+      }
 
       &.selected {
         border-radius: 30%;
