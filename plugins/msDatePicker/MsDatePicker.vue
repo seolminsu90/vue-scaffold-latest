@@ -284,19 +284,15 @@ const selectDay = (day) => {
         if (!model.value.startDate) model.value.startDate = day
         else {
             if (model.value.startDate && model.value.startDate.f === day.f) {
-                if (model.value.endDate) {
-                    model.value.startDate = { ...model.value.endDate }
-                    model.value.endDate = null
-                } else {
-                    model.value.endDate = { ...model.value.startDate }
-                }
+                model.value.endDate = { ...model.value.startDate }
                 return
             } else if (model.value.endDate && model.value.endDate.f === day.f) {
-                model.value.endDate = null
+                model.value.startDate = { ...model.value.endDate }
                 return
             }
 
             const isAfterStart = isAfter(day, model.value.startDate)
+
             if (model.value.startDate && !model.value.endDate) {
                 if (!isAfterStart) {
                     model.value.endDate = { ...model.value.startDate }
