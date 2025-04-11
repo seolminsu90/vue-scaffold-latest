@@ -20,16 +20,21 @@ $ms-calendar-arrow-hover-color: #5b60bb;
 $ms-calendar-holyday-color: #da2525;
 
 .ms-calendar-wrap {
-  position: absolute;
-  z-index: 1001;
+  position: fixed;
+  z-index: 1008;
   background-color: $ms-calendar-bg;
-  top: 100%;
-  left: 0;
   font-size: inherit;
   width: calc(18em);
   border: 1.5px solid $ms-calender-border-color;
   border-radius: 4px;
   padding: 0 0.5em 0.5em;
+
+  &.ms-calendar-up {
+    transform: translateY(calc(-100% - 28px));
+  }
+
+  &.ms-calendar-down {
+  }
 
   .ms-calendar-timer {
     display: flex;
@@ -241,7 +246,7 @@ $ms-calendar-holyday-color: #da2525;
       justify-content: center;
       font-size: 0.8em;
 
-      &.selected.start.end{
+      &.selected.start.end {
         border-radius: 30% !important;
         background-color: $ms-calendar-selected-day-same-bg-color;
       }
@@ -360,7 +365,7 @@ $ms-calendar-holyday-color: #da2525;
 .ms-calendar-component-input {
   display: block;
   width: 100%;
-  padding: 0.375rem 0.75rem;
+  padding: 0.175rem 0.75rem;
   font-size: 0.8em;
   font-weight: 400;
   line-height: 1.5;
