@@ -1,5 +1,7 @@
 #### Virtual scroll sample
 
+- vue3, bootstrap(css)를 이용합니다.
+
 ### 📦 Props
 
 | Prop 이름     | 타입                  | 필수 여부 | 기본값    | 설명 |
