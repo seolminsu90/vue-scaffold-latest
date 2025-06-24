@@ -99,7 +99,9 @@ onMounted(() => {
     }
 
     const resize = new ResizeObserver(() => {
-      heightPx.value = scrollContainer.value.clientHeight
+      if (scrollContainer.value) {
+        heightPx.value = scrollContainer.value.clientHeight
+      }
     })
     resize.observe(scrollContainer.value)
   })
