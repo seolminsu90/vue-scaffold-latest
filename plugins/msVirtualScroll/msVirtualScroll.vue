@@ -1,6 +1,10 @@
 <template>
   <div ref="scrollContainer" class="virtual-scroll"
        :style="{ height: containerHeightStyle, overflowY: 'auto' }" @scroll="onScroll">
+
+    <div class="virtual-scroll-header">
+      <slot name="header"/>
+    </div>
     <div class="virtual-scroll-inner" :style="innerStyle">
       <div
           v-for="(item, i) in visibleItems"
@@ -11,22 +15,22 @@
         }"
           :ref="autoHeight ? el => itemRefs[startIndex + i] = el : null"
       >
-        <slot :item="item" :index="startIndex + i" />
+        <slot name="item" :item="item" :index="startIndex + i"/>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import {computed, nextTick, onMounted, ref, watch} from 'vue'
 
 const props = defineProps({
   items: Array,
   height: [Number, String],
   saveScroll: Boolean,
-  rowHeight: { type: Number, default: 40 },
+  rowHeight: {type: Number, default: 40},
   autoHeight: Boolean,
-  overscan: { type: Number, default: 5 },
+  overscan: {type: Number, default: 5},
 })
 
 const scrollTop = ref(0)
@@ -131,11 +135,18 @@ onMounted(() => {
 .virtual-scroll {
   position: relative;
 }
+
 .virtual-scroll-inner {
   display: flex;
   flex-direction: column;
 }
+
 .virtual-scroll-item {
   box-sizing: border-box;
+}
+
+.virtual-scroll-header {
+  position: sticky;
+  top: 0;
 }
 </style>
