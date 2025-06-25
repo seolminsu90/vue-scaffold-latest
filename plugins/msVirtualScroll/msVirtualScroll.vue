@@ -1,11 +1,15 @@
 <template>
+
   <div ref="scrollContainer" class="virtual-scroll"
+       @mousedown="onMouseDown"
        :style="{ height: containerHeightStyle, overflowY: 'auto' }" @scroll="onScroll">
 
     <div class="virtual-scroll-header">
       <slot name="header"/>
     </div>
-    <div class="virtual-scroll-inner" :style="innerStyle">
+    <div
+        class="virtual-scroll-inner"
+        :style="innerStyle">
       <div
           v-for="(item, i) in visibleItems"
           :key="startIndex + i"
@@ -131,6 +135,33 @@ onMounted(() => {
     })
   }
 })
+
+const isDragging = ref(false)
+const startX = ref(0)
+const scrollLeft = ref(0)
+
+const onMouseDown = (e) => {
+  if (!scrollContainer.value) return
+  isDragging.value = true
+  startX.value = e.pageX
+  scrollLeft.value = scrollContainer.value.scrollLeft
+  document.addEventListener('mousemove', onMouseMove)
+  document.addEventListener('mouseup', onMouseUp)
+}
+
+const onMouseMove = (e) => {
+  if (!isDragging.value) return
+  e.preventDefault()
+  const x = e.pageX
+  const walk = x - startX.value
+  scrollContainer.value.scrollLeft = scrollLeft.value - walk
+}
+
+const onMouseUp = () => {
+  isDragging.value = false
+  document.removeEventListener('mousemove', onMouseMove)
+  document.removeEventListener('mouseup', onMouseUp)
+}
 </script>
 
 <style scoped>
@@ -150,5 +181,10 @@ onMounted(() => {
 .virtual-scroll-header {
   position: sticky;
   top: 0;
+  z-index: 10;
+}
+
+.virtual-scroll-inner:active {
+  cursor: grabbing;
 }
 </style>
