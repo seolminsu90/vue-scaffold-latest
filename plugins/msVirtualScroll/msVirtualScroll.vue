@@ -50,13 +50,34 @@ const containerHeightStyle = computed(() =>
     typeof props.height === 'number' ? `${props.height}px` : props.height
 )
 
-const visibleCount = computed(() =>
-    heightPx.value === 0 ? 0 : Math.ceil(heightPx.value / props.rowHeight) + props.overscan * 2
+const startIndex = computed(() =>
+    props.autoHeight ? getDynamicStartIndex() : Math.max(0, Math.floor(scrollTop.value / props.rowHeight) - props.overscan)
 )
 
-const startIndex = computed(() =>
-    Math.max(0, Math.floor(scrollTop.value / props.rowHeight) - props.overscan)
+const visibleCount = computed(() =>
+    props.autoHeight ? getDynamicVisibleCount() : Math.ceil(heightPx.value / props.rowHeight) + props.overscan * 2
 )
+const getDynamicStartIndex = () => {
+  let sum = 0
+  for (let i = 0; i < props.items.length; i++) {
+    const h = itemHeights.value[i] ?? props.rowHeight
+    if (sum + h > scrollTop.value) return i
+    sum += h
+  }
+  return 0
+}
+
+const getDynamicVisibleCount = () => {
+  let sum = 0
+  let count = 0
+  for (let i = startIndex.value; i < props.items.length; i++) {
+    const h = itemHeights.value[i] ?? props.rowHeight
+    sum += h
+    count++
+    if (sum > heightPx.value) break
+  }
+  return count + props.overscan * 2
+}
 
 const endIndex = computed(() =>
     Math.min(props.items.length, startIndex.value + visibleCount.value)
@@ -157,7 +178,9 @@ const onMouseMove = (e) => {
   scrollContainer.value.scrollLeft = scrollLeft.value - walk
 }
 
-const onMouseUp = () => {
+const onMouseUp = (e) => {
+  e.preventDefault()
+  e.stopPropagation()
   isDragging.value = false
   document.removeEventListener('mousemove', onMouseMove)
   document.removeEventListener('mouseup', onMouseUp)
