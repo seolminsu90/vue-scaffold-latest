@@ -35,6 +35,7 @@ const props = defineProps({
   rowHeight: {type: Number, default: 40},
   autoHeight: Boolean,
   overscan: {type: Number, default: 5},
+  bottomGap: {type: Number, default: 0},
 })
 
 const scrollTop = ref(0)
@@ -100,7 +101,7 @@ const paddingBottom = computed(() => {
   for (let i = endIndex.value; i < props.items.length; i++) {
     sum += getItemHeight(i)
   }
-  return sum
+  return sum + props.bottomGap
 })
 
 const innerStyle = computed(() => ({
