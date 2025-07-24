@@ -12,8 +12,8 @@
 | `rowHeight`   | `Number`              | ❌        | `40`      | 아이템의 기본(예상) 높이 값이에요. `autoHeight`가 꺼져있을 때 사용돼요. |
 | `autoHeight`  | `Boolean`             | ❌        | `false`   | 아이템 높이를 실제 DOM 기준으로 자동 측정할지 여부예요. 켜면 `ResizeObserver`를 사용해요. |
 | `overscan`    | `Number`              | ❌        | `5`       | 화면 위·아래로 렌더링할 여분 아이템 개수예요. 성능과 부드러운 스크롤을 위해 사용해요. |
-| `bottomGap`    | `Number`              | ❌        | `5`       | 테이블 최하단의 여백을 주고싶을 때 사용해요. |
-| `disableVirtualScroll`    | `Boolean`              | ❌        | `5`       | 가상 테이블 기능을 끄고싶을 때, 사용해요. |
+| `bottomGap`    | `Number`              | ❌        | `0`       | 테이블 최하단의 여백을 주고싶을 때 사용해요. |
+| `disableVirtualScroll`    | `Boolean`              | ❌        | false       | 가상 테이블 기능을 끄고싶을 때, 사용해요. 부분 로드 기능이 적용되지 않아요. |
 
 
 *아래와 같이 사용*
