@@ -36,6 +36,10 @@ const props = defineProps({
   autoHeight: Boolean,
   overscan: {type: Number, default: 5},
   bottomGap: {type: Number, default: 0},
+  disableVirtualScroll: {
+    type: Boolean,
+    default: false
+  }
 })
 
 const scrollTop = ref(0)
@@ -85,7 +89,9 @@ const endIndex = computed(() =>
 )
 
 const visibleItems = computed(() =>
-    props.items.slice(startIndex.value, endIndex.value)
+    props.disableVirtualScroll
+        ? props.items
+        : props.items.slice(startIndex.value, endIndex.value)
 )
 
 const paddingTop = computed(() => {
@@ -104,10 +110,14 @@ const paddingBottom = computed(() => {
   return sum + props.bottomGap
 })
 
-const innerStyle = computed(() => ({
-  paddingTop: `${paddingTop.value}px`,
-  paddingBottom: `${paddingBottom.value}px`
-}))
+const innerStyle = computed(() =>
+    props.disableVirtualScroll
+        ? {}
+        : {
+          paddingTop: `${paddingTop.value}px`,
+          paddingBottom: `${paddingBottom.value}px`
+        }
+)
 
 const onScroll = () => {
   scrollTop.value = scrollContainer.value.scrollTop
@@ -119,7 +129,7 @@ onMounted(() => {
       heightPx.value = scrollContainer.value.clientHeight
     }
 
-    if (props.saveScroll) {
+    if (props.saveScroll && !props.disableVirtualScroll) {
       const saved = localStorage.getItem('virtual-scroll-position')
       if (saved) scrollContainer.value.scrollTop = parseInt(saved)
     }
