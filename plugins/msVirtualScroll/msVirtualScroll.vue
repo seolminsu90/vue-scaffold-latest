@@ -12,7 +12,7 @@
         :style="innerStyle">
       <div
           v-for="(item, i) in visibleItems"
-          :key="startIndex + i"
+          :key="(unique || 'KEY') + startIndex + i"
           class="virtual-scroll-item"
           :style="{
           height: autoHeight ? null : getItemHeight(startIndex + i) + 'px',
@@ -29,6 +29,7 @@
 import {computed, nextTick, onMounted, ref, watch} from 'vue'
 
 const props = defineProps({
+  unique: String,
   items: Array,
   height: [Number, String],
   saveScroll: Boolean,
@@ -131,15 +132,20 @@ onMounted(() => {
 
     if (props.saveScroll && !props.disableVirtualScroll) {
       const saved = localStorage.getItem('virtual-scroll-position')
-      if (saved) scrollContainer.value.scrollTop = parseInt(saved)
+      if (saved && scrollContainer.value) {
+        scrollContainer.value.scrollTop = parseInt(saved)
+      }
     }
 
     const resize = new ResizeObserver(() => {
-      if (scrollContainer.value) {
+      if (scrollContainer.value instanceof Element) {
         heightPx.value = scrollContainer.value.clientHeight
       }
     })
-    resize.observe(scrollContainer.value)
+
+    if (scrollContainer.value instanceof Element) {
+      resize.observe(scrollContainer.value)
+    }
   })
 
   if (props.autoHeight) {
@@ -159,7 +165,7 @@ onMounted(() => {
       await nextTick()
       for (let i = startIndex.value; i < endIndex.value; i++) {
         const el = itemRefs.value[i]
-        if (el) {
+        if (el instanceof Element) {
           el.dataset.index = i
           observer.observe(el)
         }
