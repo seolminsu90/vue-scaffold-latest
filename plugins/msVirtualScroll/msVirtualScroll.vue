@@ -210,7 +210,7 @@ const onMouseUp = (e) => {
 }
 
 .virtual-scroll-inner {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
 }
 
