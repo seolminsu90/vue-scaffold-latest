@@ -1,5 +1,5 @@
 <template>
-    <div class="ms-calendar-component position-relative" @click.stop.prevent="showCalandar = true">
+    <div class="ms-calendar-component position-relative" @click.stop.prevent="showCalendar = true">
         <div class="position-relative d-flex-center">
             <input
                 ref="inputRef" @focus="updateCalendarPosition"
@@ -13,13 +13,13 @@
             <i v-if="modelValue && xBtnShow" class="fa-solid fa-xmark input-x-btn"
                @click.stop.prevent="modelValue = null"></i>
         </div>
-        <div class="calendar-dim" v-show="showCalandar"
-             @click.stop.prevent="showCalandar = false"></div>
+        <div class="calendar-dim" v-show="showCalendar"
+             @click.stop.prevent="showCalendar = false"></div>
         <div
             ref="msCalendarWrap"
             class="ms-calendar-wrap ms-calendar-down"
             :style="{ top: `${position.top}px`, left: `${position.left}px` }"
-            v-show="showCalandar"
+            v-show="showCalendar"
             @click.stop.prevent="onCalendarFocus"
         >
             <MsCalendarHeader :year="year" :month="month" :time-view="!isCalendarView"
@@ -186,7 +186,7 @@
     </div>
 </template>
 <script setup>
-import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue'
+import {computed, nextTick, ref, watch} from 'vue'
 import {useCalendarData} from './calendar-func.js'
 import './ms-datepicker.scss'
 import MsCalendarHeader from './MsCalendarHeader.vue'
@@ -273,9 +273,9 @@ const props = defineProps({
     }
 })
 
-const showCalandar = ref(false)
+const showCalendar = ref(false)
 watch(
-    () => showCalandar.value,
+    () => showCalendar.value,
     async (val) => {
         if (val) {
             init()
@@ -285,7 +285,7 @@ watch(
 )
 const isFocus = (el) => el.target.parentNode.classList.add('focus')
 const isBlur = (el) => el.target.parentNode.classList.remove('focus')
-const onClose = () => (showCalandar.value = false)
+const onClose = () => (showCalendar.value = false)
 const onOk = () => {
     if (props.range) {
         if (props.type === 'datetime') {
@@ -610,7 +610,7 @@ const position = ref({top: 0, left: 0})
 const updateCalendarPosition = async () => {
     if (!inputRef.value || !msCalendarWrap.value) return
 
-    showCalandar.value = true
+    showCalendar.value = true
     await nextTick()
 
     const inputRect = inputRef.value.getBoundingClientRect()
@@ -639,7 +639,7 @@ const updateCalendarPosition = async () => {
     position.value = {top, left}
 }
 
-const doClick = () => (showCalandar.value = true)
+const doClick = () => (showCalendar.value = true)
 
 defineExpose({
     doClick,
