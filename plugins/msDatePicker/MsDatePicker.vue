@@ -637,16 +637,6 @@ const updateCalendarPosition = async () => {
     position.value = {top, left}
 }
 
-onMounted(() => {
-    window.addEventListener('scroll', updateCalendarPosition)
-    window.addEventListener('resize', updateCalendarPosition)
-})
-
-onBeforeUnmount(() => {
-    window.removeEventListener('scroll', updateCalendarPosition)
-    window.removeEventListener('resize', updateCalendarPosition)
-})
-
 const doClick = () => (showCalandar.value = true)
 
 defineExpose({
