@@ -276,9 +276,11 @@ const props = defineProps({
 const showCalandar = ref(false)
 watch(
     () => showCalandar.value,
-    async () => {
-        init()
-        await showFocus()
+    async (val) => {
+        if (val) {
+            init()
+            await showFocus()
+        }
     },
 )
 const isFocus = (el) => el.target.parentNode.classList.add('focus')
