@@ -15,24 +15,23 @@
         </div>
         <div class="calendar-dim" v-show="showCalandar"
              @click.stop.prevent="showCalandar = false"></div>
-        <transition name="ms-slide-down">
-            <div
-                ref="msCalendarWrap"
-                class="ms-calendar-wrap ms-calendar-down"
-                :style="{ top: `${position.top}px`, left: `${position.left}px` }"
-                v-show="showCalandar"
-                @click.stop.prevent="onCalendarFocus"
-            >
-                <MsCalendarHeader :year="year" :month="month" :time-view="!isCalendarView"
-                                  @onMove="onMove"/>
-                <transition name="ms-slide-up">
-                    <div class="ms-calendar" v-if="isCalendarView">
-                        <div class="ms-calendar-day week" v-for="(week, idx) in WEEKS" :key="idx">
-                            {{ week.toUpperCase() }}
-                        </div>
-                        <div
-                            class="ms-calendar-day"
-                            :class="{
+        <div
+            ref="msCalendarWrap"
+            class="ms-calendar-wrap ms-calendar-down"
+            :style="{ top: `${position.top}px`, left: `${position.left}px` }"
+            v-show="showCalandar"
+            @click.stop.prevent="onCalendarFocus"
+        >
+            <MsCalendarHeader :year="year" :month="month" :time-view="!isCalendarView"
+                              @onMove="onMove"/>
+            <transition name="ms-slide-up">
+                <div class="ms-calendar" v-if="isCalendarView">
+                    <div class="ms-calendar-day week" v-for="(week, idx) in WEEKS" :key="idx">
+                        {{ week.toUpperCase() }}
+                    </div>
+                    <div
+                        class="ms-calendar-day"
+                        :class="{
                                 holyday: day.w === 'sun' || day.w === 'sat',
                                 today: day.today,
                                 blur: day.blur,
@@ -42,33 +41,92 @@
                                 'select-range': isSelectRange(day),
                                 disabled: isDisableDay(day),
                             }"
-                            v-for="(day, idx) in cal"
-                            :key="idx"
-                            @click="selectDay(day)"
-                        >
-                            {{ day.d }}
-                        </div>
+                        v-for="(day, idx) in cal"
+                        :key="idx"
+                        @click="selectDay(day)"
+                    >
+                        {{ day.d }}
                     </div>
-                </transition>
-                <transition name="ms-slide-up">
-                    <div class="ms-calendar-timer" v-if="!isCalendarView">
-                        <div class="ms-timer">
-                            <div class="ms-timer-text" v-if="props.range">시작 시간</div>
-                            <div class="d-flex-center" :class="{ zoom: !props.range }">
+                </div>
+            </transition>
+            <transition name="ms-slide-up">
+                <div class="ms-calendar-timer" v-if="!isCalendarView">
+                    <div class="ms-timer">
+                        <div class="ms-timer-text" v-if="props.range">시작 시간</div>
+                        <div class="d-flex-center" :class="{ zoom: !props.range }">
+                            <div class="position-relative hover-arrow-show" @focusin="isFocus"
+                                 @focusout="isBlur">
+                                <input
+                                    type="text"
+                                    min="0"
+                                    v-model="model.startTime.h"
+                                    ref="startHour"
+                                    @keydown.up="upTimeData($event, 'h', model.startTime)"
+                                    @keydown.down="downTimeData($event, 'h', model.startTime)"
+                                    @keyup="checkAndNext($event, 'h', model.startTime)"
+                                />
+                                <div class="arrow-btn-wrap">
+                                    <i class="fa-solid fa-caret-up" @click="upData(model.startTime, 'h')"></i>
+                                    <i class="fa-solid fa-caret-down" @click="downData(model.startTime, 'h')"></i>
+                                </div>
+                            </div>
+                            <span>:</span>
+                            <div class="position-relative hover-arrow-show" @focusin="isFocus"
+                                 @focusout="isBlur">
+                                <input
+                                    type="text"
+                                    min="0"
+                                    v-model="model.startTime.m"
+                                    ref="startMinute"
+                                    @keydown.up="upTimeData($event, 'm', model.startTime)"
+                                    @keydown.down="downTimeData($event, 'm', model.startTime)"
+                                    @keyup="checkAndNext($event, 'm', model.startTime)"
+                                />
+                                <div class="arrow-btn-wrap">
+                                    <i class="fa-solid fa-caret-up" @click="upData(model.startTime, 'm')"></i>
+                                    <i class="fa-solid fa-caret-down" @click="downData(model.startTime, 'm')"></i>
+                                </div>
+                            </div>
+                            <template v-if="isUseSecond">
+                                <span>:</span>
                                 <div class="position-relative hover-arrow-show" @focusin="isFocus"
                                      @focusout="isBlur">
                                     <input
                                         type="text"
                                         min="0"
-                                        v-model="model.startTime.h"
-                                        ref="startHour"
-                                        @keydown.up="upTimeData($event, 'h', model.startTime)"
-                                        @keydown.down="downTimeData($event, 'h', model.startTime)"
-                                        @keyup="checkAndNext($event, 'h', model.startTime)"
+                                        v-model="model.startTime.s"
+                                        ref="startSecond"
+                                        @keydown.up="upTimeData($event, 's', model.startTime)"
+                                        @keydown.down="downTimeData($event, 's', model.startTime)"
+                                        @keyup="checkAndNext($event, 's', model.startTime)"
                                     />
                                     <div class="arrow-btn-wrap">
-                                        <i class="fa-solid fa-caret-up" @click="upData(model.startTime, 'h')"></i>
-                                        <i class="fa-solid fa-caret-down" @click="downData(model.startTime, 'h')"></i>
+                                        <i class="fa-solid fa-caret-up" @click="upData(model.startTime, 's')"></i>
+                                        <i class="fa-solid fa-caret-down" @click="downData(model.startTime, 's')"></i>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <template v-if="props.range">
+                        <div style="padding-top: 1em">~</div>
+                        <div class="ms-timer">
+                            <div class="ms-timer-text">종료 시간</div>
+                            <div class="d-flex-center">
+                                <div class="position-relative hover-arrow-show" @focusin="isFocus"
+                                     @focusout="isBlur">
+                                    <input
+                                        type="text"
+                                        min="0"
+                                        v-model="model.endTime.h"
+                                        ref="endHour"
+                                        @keydown.up="upTimeData($event, 'h', model.endTime)"
+                                        @keydown.down="downTimeData($event, 'h', model.endTime)"
+                                        @keyup="checkAndNext($event, 'h', model.endTime)"
+                                    />
+                                    <div class="arrow-btn-wrap">
+                                        <i class="fa-solid fa-caret-up" @click="upData(model.endTime, 'h')"></i>
+                                        <i class="fa-solid fa-caret-down" @click="downData(model.endTime, 'h')"></i>
                                     </div>
                                 </div>
                                 <span>:</span>
@@ -77,15 +135,15 @@
                                     <input
                                         type="text"
                                         min="0"
-                                        v-model="model.startTime.m"
-                                        ref="startMinute"
-                                        @keydown.up="upTimeData($event, 'm', model.startTime)"
-                                        @keydown.down="downTimeData($event, 'm', model.startTime)"
-                                        @keyup="checkAndNext($event, 'm', model.startTime)"
+                                        v-model="model.endTime.m"
+                                        ref="endMinute"
+                                        @keydown.up="upTimeData($event, 'm', model.endTime)"
+                                        @keydown.down="downTimeData($event, 'm', model.endTime)"
+                                        @keyup="checkAndNext($event, 'm', model.endTime)"
                                     />
                                     <div class="arrow-btn-wrap">
-                                        <i class="fa-solid fa-caret-up" @click="upData(model.startTime, 'm')"></i>
-                                        <i class="fa-solid fa-caret-down" @click="downData(model.startTime, 'm')"></i>
+                                        <i class="fa-solid fa-caret-up" @click="upData(model.endTime, 'm')"></i>
+                                        <i class="fa-solid fa-caret-down" @click="downData(model.endTime, 'm')"></i>
                                     </div>
                                 </div>
                                 <template v-if="isUseSecond">
@@ -95,96 +153,36 @@
                                         <input
                                             type="text"
                                             min="0"
-                                            v-model="model.startTime.s"
-                                            ref="startSecond"
-                                            @keydown.up="upTimeData($event, 's', model.startTime)"
-                                            @keydown.down="downTimeData($event, 's', model.startTime)"
-                                            @keyup="checkAndNext($event, 's', model.startTime)"
+                                            v-model="model.endTime.s"
+                                            ref="endSecond"
+                                            @keydown.up="upTimeData($event, 's', model.endTime)"
+                                            @keydown.down="downTimeData($event, 's', model.endTime)"
+                                            @keyup="checkAndNext($event, 's', model.endTime)"
                                         />
                                         <div class="arrow-btn-wrap">
-                                            <i class="fa-solid fa-caret-up" @click="upData(model.startTime, 's')"></i>
-                                            <i class="fa-solid fa-caret-down" @click="downData(model.startTime, 's')"></i>
+                                            <i class="fa-solid fa-caret-up" @click="upData(model.endTime, 's')"></i>
+                                            <i class="fa-solid fa-caret-down" @click="downData(model.endTime, 's')"></i>
                                         </div>
                                     </div>
                                 </template>
                             </div>
                         </div>
-                        <template v-if="props.range">
-                            <div style="padding-top: 1em">~</div>
-                            <div class="ms-timer">
-                                <div class="ms-timer-text">종료 시간</div>
-                                <div class="d-flex-center">
-                                    <div class="position-relative hover-arrow-show" @focusin="isFocus"
-                                         @focusout="isBlur">
-                                        <input
-                                            type="text"
-                                            min="0"
-                                            v-model="model.endTime.h"
-                                            ref="endHour"
-                                            @keydown.up="upTimeData($event, 'h', model.endTime)"
-                                            @keydown.down="downTimeData($event, 'h', model.endTime)"
-                                            @keyup="checkAndNext($event, 'h', model.endTime)"
-                                        />
-                                        <div class="arrow-btn-wrap">
-                                            <i class="fa-solid fa-caret-up" @click="upData(model.endTime, 'h')"></i>
-                                            <i class="fa-solid fa-caret-down" @click="downData(model.endTime, 'h')"></i>
-                                        </div>
-                                    </div>
-                                    <span>:</span>
-                                    <div class="position-relative hover-arrow-show" @focusin="isFocus"
-                                         @focusout="isBlur">
-                                        <input
-                                            type="text"
-                                            min="0"
-                                            v-model="model.endTime.m"
-                                            ref="endMinute"
-                                            @keydown.up="upTimeData($event, 'm', model.endTime)"
-                                            @keydown.down="downTimeData($event, 'm', model.endTime)"
-                                            @keyup="checkAndNext($event, 'm', model.endTime)"
-                                        />
-                                        <div class="arrow-btn-wrap">
-                                            <i class="fa-solid fa-caret-up" @click="upData(model.endTime, 'm')"></i>
-                                            <i class="fa-solid fa-caret-down" @click="downData(model.endTime, 'm')"></i>
-                                        </div>
-                                    </div>
-                                    <template v-if="isUseSecond">
-                                        <span>:</span>
-                                        <div class="position-relative hover-arrow-show" @focusin="isFocus"
-                                             @focusout="isBlur">
-                                            <input
-                                                type="text"
-                                                min="0"
-                                                v-model="model.endTime.s"
-                                                ref="endSecond"
-                                                @keydown.up="upTimeData($event, 's', model.endTime)"
-                                                @keydown.down="downTimeData($event, 's', model.endTime)"
-                                                @keyup="checkAndNext($event, 's', model.endTime)"
-                                            />
-                                            <div class="arrow-btn-wrap">
-                                                <i class="fa-solid fa-caret-up" @click="upData(model.endTime, 's')"></i>
-                                                <i class="fa-solid fa-caret-down" @click="downData(model.endTime, 's')"></i>
-                                            </div>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </transition>
-                <div class="ms-calendar-icon-wrap" @click="toggleCalendarView" v-if="isPossibleToggle">
+                    </template>
+                </div>
+            </transition>
+            <div class="ms-calendar-icon-wrap" @click="toggleCalendarView" v-if="isPossibleToggle">
                     <span v-if="!isCalendarView">
                         <i class="fa-regular fa-calendar-check"/>
                         <span class="icon-text">날짜 선택</span>
                     </span>
-                    <span v-else-if="isCalendarView">
+                <span v-else-if="isCalendarView">
                         <i class="fa-regular fa-clock"/>
                         <span class="icon-text">시간 선택</span>
                     </span>
-                </div>
-                <MsCalendarFooter :range="props.range" :results="model" @ok="onOk" @close="onClose"
-                                  :type="type" :second-display="isUseSecond"/>
             </div>
-        </transition>
+            <MsCalendarFooter :range="props.range" :results="model" @ok="onOk" @close="onClose"
+                              :type="type" :second-display="isUseSecond"/>
+        </div>
     </div>
 </template>
 <script setup>
@@ -607,26 +605,33 @@ const init = () => {
 const msCalendarWrap = ref(null)
 const inputRef = ref(null)
 const position = ref({top: 0, left: 0})
-const updateCalendarPosition = () => {
+const updateCalendarPosition = async () => {
     if (!inputRef.value || !msCalendarWrap.value) return
+
+    showCalandar.value = true
+    await nextTick()
 
     const inputRect = inputRef.value.getBoundingClientRect()
     const calendarEl = msCalendarWrap.value
 
-    const downMargin = 10 // 아래로 열릴 때 간격
-    const upMargin = 30   // 위로 열릴 때 간격
+    const downMargin = 0
+    const upMargin = 0
 
     let top = inputRect.bottom
     let left = inputRect.left
 
+
     const calendarHeight = calendarEl.offsetHeight || 300
     if (top + calendarHeight > window.innerHeight) {
         top = inputRect.top - calendarHeight - upMargin
+    } else {
+        top += downMargin
     }
 
     const calendarWidth = calendarEl.offsetWidth || 300
+    const sideMargin = 10
     if (left + calendarWidth > window.innerWidth) {
-        left = window.innerWidth - calendarWidth - downMargin
+        left = Math.max(sideMargin, window.innerWidth - calendarWidth - sideMargin)
     }
 
     position.value = {top, left}
