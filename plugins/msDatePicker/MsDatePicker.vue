@@ -2,7 +2,7 @@
     <div class="ms-calendar-component position-relative" @click.stop.prevent="showCalendar = true">
         <div class="position-relative d-flex-center">
             <input
-                ref="inputRef" @focus="updateCalendarPosition"
+                ref="inputRef" @focus="updateCalendarPosition(true)"
                 class="ms-calendar-component-input"
                 type="text"
                 :placeholder="placeholder"
@@ -280,6 +280,7 @@ watch(
         if (val) {
             init()
             await showFocus()
+            updateCalendarPosition(false)
         }
     },
 )
@@ -607,11 +608,13 @@ const init = () => {
 const msCalendarWrap = ref(null)
 const inputRef = ref(null)
 const position = ref({top: 0, left: 0})
-const updateCalendarPosition = async () => {
-    if (!inputRef.value || !msCalendarWrap.value) return
-
-    showCalendar.value = true
+const updateCalendarPosition = async (showCalendarTrigger = true) => {
+    if(showCalendarTrigger) showCalendar.value = true
     await nextTick()
+
+    if (!inputRef.value || !msCalendarWrap.value) {
+        return console.log("Not rendered..")
+    }
 
     const inputRect = inputRef.value.getBoundingClientRect()
     const calendarEl = msCalendarWrap.value
@@ -621,7 +624,6 @@ const updateCalendarPosition = async () => {
 
     let top = inputRect.bottom
     let left = inputRect.left
-
 
     const calendarHeight = calendarEl.offsetHeight || 300
     if (top + calendarHeight > window.innerHeight) {
