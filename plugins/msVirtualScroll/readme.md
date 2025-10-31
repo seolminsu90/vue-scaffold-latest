@@ -14,6 +14,7 @@
 | `overscan`    | `Number`              | ❌        | `5`       | 화면 위·아래로 렌더링할 여분 아이템 개수예요. 성능과 부드러운 스크롤을 위해 사용해요. |
 | `bottomGap`    | `Number`              | ❌        | `0`       | 테이블 최하단의 여백을 주고싶을 때 사용해요. |
 | `disableVirtualScroll`    | `Boolean`              | ❌        | false       | 가상 테이블 기능을 끄고싶을 때, 사용해요. 부분 로드 기능이 적용되지 않아요. |
+| `groupKey`  | `String`  |❌ |null|테이블간 스크롤 동기화|
 
 
 *아래와 같이 사용*
@@ -28,6 +29,8 @@
     </div>
   </template>
 </MsVirtualScroll>
+
+const groups = ref({}) // 그룹화 할 경우 상위 바인딩 객체
 
 const itemsAll = ref([
   {name: 'Item 1', description: 'Description for Item 1'},
