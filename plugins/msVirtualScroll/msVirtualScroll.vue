@@ -70,14 +70,30 @@ const visibleCount = computed(() =>
     props.autoHeight ? getDynamicVisibleCount() : Math.ceil(heightPx.value / props.rowHeight) + props.overscan * 2
 )
 const getDynamicStartIndex = () => {
+    let low = 0
+    let high = prefixHeights.value.length - 1
+    let target = scrollTop.value
+
+    while (low <= high) {
+        const mid = Math.floor((low + high) / 2)
+        if (prefixHeights.value[mid] < target) {
+            low = mid + 1
+        } else {
+            high = mid - 1
+        }
+    }
+    return low
+}
+
+const prefixHeights = computed(() => {
+    const arr = []
     let sum = 0
     for (let i = 0; i < props.items.length; i++) {
-        const h = itemHeights.value[i] ?? props.rowHeight
-        if (sum + h > scrollTop.value) return i
-        sum += h
+        sum += getItemHeight(i)
+        arr[i] = sum
     }
-    return 0
-}
+    return arr
+})
 
 const getDynamicVisibleCount = () => {
     let sum = 0
@@ -101,20 +117,14 @@ const visibleItems = computed(() =>
         : props.items.slice(startIndex.value, endIndex.value)
 )
 
-const paddingTop = computed(() => {
-    let sum = 0
-    for (let i = 0; i < startIndex.value; i++) {
-        sum += getItemHeight(i)
-    }
-    return sum
-})
+const paddingTop = computed(() =>
+    startIndex.value > 0 ? prefixHeights.value[startIndex.value - 1] : 0
+)
 
 const paddingBottom = computed(() => {
-    let sum = 0
-    for (let i = endIndex.value; i < props.items.length; i++) {
-        sum += getItemHeight(i)
-    }
-    return sum + props.bottomGap
+    const total = prefixHeights.value[prefixHeights.value.length - 1] || 0
+    const visible = prefixHeights.value[endIndex.value - 1] || 0
+    return total - visible + props.bottomGap
 })
 
 const innerStyle = computed(() =>
@@ -126,23 +136,32 @@ const innerStyle = computed(() =>
         }
 )
 
+let ticking = false
 const onScroll = (e) => {
-    if (!props.groupKey) {
-        scrollTop.value = scrollContainer.value.scrollTop
-        return
-    }
+    if (ticking, isSyncing.value) return
+    ticking = true
+    requestAnimationFrame(() => {
+        try {
+            if (!props.groupKey) {
+                scrollTop.value = scrollContainer.value.scrollTop
+                return
+            }
 
-    const group = groups.value?.[props.groupKey]
-    if (!group) return
-    const currentTop = e.target.scrollTop
-    scrollTop.value = currentTop
-    isSyncing.value = true
-    for (const el of group) {
-        if (el !== e.target) {
-            el.scrollTop = currentTop
+            const group = groups.value?.[props.groupKey]
+            if (!group) return
+            const currentTop = e.target.scrollTop
+            scrollTop.value = currentTop
+            isSyncing.value = true
+            for (const el of group) {
+                if (el !== e.target) {
+                    el.scrollTop = currentTop
+                }
+            }
+            isSyncing.value = false
+        } finally {
+            ticking = false
         }
-    }
-    isSyncing.value = false
+    })
 }
 
 
@@ -156,6 +175,8 @@ onMounted(async () => {
     groups.value[props.groupKey].push(scrollContainer.value)
 })
 
+const resizeObserver = ref(null)
+const observedElements = new Set()
 onMounted(() => {
     nextTick(() => {
         if (scrollContainer.value) {
@@ -181,12 +202,12 @@ onMounted(() => {
     })
 
     if (props.autoHeight) {
-        const observer = new ResizeObserver(entries => {
+        resizeObserver.value = new ResizeObserver(entries => {
             for (const entry of entries) {
                 const index = Number(entry.target.dataset.index)
                 if (!isNaN(index)) {
                     const height = entry.contentRect.height
-                    if (height > 0) {
+                    if (height > 0 && itemHeights.value[index] !== height) {
                         itemHeights.value[index] = height
                     }
                 }
@@ -194,12 +215,30 @@ onMounted(() => {
         })
 
         watch(visibleItems, async () => {
+            if (!props.autoHeight || !resizeObserver.value) return
+
             await nextTick()
+
+            const currentVisible = new Set()
+
             for (let i = startIndex.value; i < endIndex.value; i++) {
                 const el = itemRefs.value[i]
                 if (el instanceof Element) {
                     el.dataset.index = i
-                    observer.observe(el)
+                    currentVisible.add(el)
+
+                    if (!observedElements.has(el)) {
+                        resizeObserver.value.observe(el)
+                        observedElements.add(el)
+                    }
+                }
+            }
+
+            // 🔥 화면에서 사라진 요소는 unobserve
+            for (const el of observedElements) {
+                if (!currentVisible.has(el)) {
+                    resizeObserver.value.unobserve(el)
+                    observedElements.delete(el)
                 }
             }
         })
@@ -237,6 +276,10 @@ const onMouseUp = (e) => {
 
 
 onBeforeUnmount(() => {
+    if (resizeObserver.value) {
+        resizeObserver.value.disconnect()
+    }
+
     if (!props.groupKey || !scrollContainer.value) return
     const group = groups.value?.[props.groupKey]
     if (group) {
