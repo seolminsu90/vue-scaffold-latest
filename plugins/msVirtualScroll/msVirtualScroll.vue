@@ -12,7 +12,7 @@
             :style="innerStyle">
             <div
                 v-for="(item, i) in visibleItems"
-                :key="(unique || 'KEY') + startIndex + i"
+                :key="(unique || 'KEY') + i"
                 class="virtual-scroll-item"
                 :style="{
           height: autoHeight ? null : getItemHeight(startIndex + i) + 'px',
@@ -44,6 +44,10 @@ const props = defineProps({
     groupKey: {
         type: String,
         default: null
+    },
+    delay: { // scroll delay
+        type: Number,
+        default: 30
     }
 })
 
@@ -61,14 +65,16 @@ const getItemHeight = index =>
 const containerHeightStyle = computed(() =>
     typeof props.height === 'number' ? `${props.height}px` : props.height
 )
+const rawStartIndex = computed(() => {
+    if (!props.autoHeight) {
+        return Math.floor(scrollTop.value / props.rowHeight)
+    }
+    return getDynamicStartIndex()
+})
+const startIndex = computed(() => {
+    return Math.max(0, rawStartIndex.value - props.overscan)
+})
 
-const startIndex = computed(() =>
-    props.autoHeight ? getDynamicStartIndex() : Math.max(0, Math.floor(scrollTop.value / props.rowHeight) - props.overscan)
-)
-
-const visibleCount = computed(() =>
-    props.autoHeight ? getDynamicVisibleCount() : Math.ceil(heightPx.value / props.rowHeight) + props.overscan * 2
-)
 const getDynamicStartIndex = () => {
     let low = 0
     let high = prefixHeights.value.length - 1
@@ -98,18 +104,41 @@ const prefixHeights = computed(() => {
 const getDynamicVisibleCount = () => {
     let sum = 0
     let count = 0
+
     for (let i = startIndex.value; i < props.items.length; i++) {
         const h = itemHeights.value[i] ?? props.rowHeight
         sum += h
         count++
         if (sum > heightPx.value) break
     }
-    return count + props.overscan * 2
-}
 
-const endIndex = computed(() =>
-    Math.min(props.items.length, startIndex.value + visibleCount.value)
-)
+    return count + props.overscan
+}
+const rawEndIndex = computed(() => {
+    if (!props.autoHeight) {
+        const visible = Math.ceil(heightPx.value / props.rowHeight)
+        return Math.min(
+            props.items.length,
+            rawStartIndex.value + visible
+        )
+    }
+
+    let sum = 0
+    let i = rawStartIndex.value
+
+    while (i < props.items.length && sum < heightPx.value) {
+        sum += getItemHeight(i)
+        i++
+    }
+
+    return i
+})
+const endIndex = computed(() => {
+    return Math.min(
+        props.items.length,
+        rawEndIndex.value + props.overscan
+    )
+})
 
 const visibleItems = computed(() =>
     props.disableVirtualScroll
@@ -117,11 +146,20 @@ const visibleItems = computed(() =>
         : props.items.slice(startIndex.value, endIndex.value)
 )
 
-const paddingTop = computed(() =>
-    startIndex.value > 0 ? prefixHeights.value[startIndex.value - 1] : 0
-)
+const paddingTop = computed(() => {
+    if (!props.autoHeight) {
+        return startIndex.value * props.rowHeight
+    }
+    return startIndex.value > 0
+        ? prefixHeights.value[startIndex.value - 1]
+        : 0
+})
 
 const paddingBottom = computed(() => {
+    if (!props.autoHeight) {
+        return (props.items.length - endIndex.value) * props.rowHeight + props.bottomGap
+    }
+
     const total = prefixHeights.value[prefixHeights.value.length - 1] || 0
     const visible = prefixHeights.value[endIndex.value - 1] || 0
     return total - visible + props.bottomGap
@@ -136,32 +174,29 @@ const innerStyle = computed(() =>
         }
 )
 
-let ticking = false
+let lastTime = 0
 const onScroll = (e) => {
-    if (ticking, isSyncing.value) return
-    ticking = true
-    requestAnimationFrame(() => {
-        try {
-            if (!props.groupKey) {
-                scrollTop.value = scrollContainer.value.scrollTop
-                return
-            }
+    const now = performance.now()
+    if (now - lastTime < props.delay) return
+    lastTime = now
 
-            const group = groups.value?.[props.groupKey]
-            if (!group) return
-            const currentTop = e.target.scrollTop
-            scrollTop.value = currentTop
-            isSyncing.value = true
-            for (const el of group) {
-                if (el !== e.target) {
-                    el.scrollTop = currentTop
-                }
+    if (isSyncing.value) return
+
+    const currentTop = e.target.scrollTop
+    scrollTop.value = currentTop
+
+    if (props.groupKey) {
+        const group = groups.value?.[props.groupKey]
+        if (!group) return
+
+        isSyncing.value = true
+        for (const el of group) {
+            if (el !== e.target && el.scrollTop !== currentTop) {
+                el.scrollTop = currentTop
             }
-            isSyncing.value = false
-        } finally {
-            ticking = false
         }
-    })
+        isSyncing.value = false
+    }
 }
 
 
@@ -178,6 +213,7 @@ onMounted(async () => {
 const resizeObserver = ref(null)
 const observedElements = new Set()
 onMounted(() => {
+    console.info("[v1.0.1] virtual scroll is enabled.")
     nextTick(() => {
         if (scrollContainer.value) {
             heightPx.value = scrollContainer.value.clientHeight
