@@ -1,71 +1,119 @@
-#### Virtual scroll sample
+# MsVirtualScroll 사용법
 
-- vue3, bootstrap(css)를 이용합니다.
+## Props
 
-### 📦 Props
+| Prop | 타입 | 기본값 | 설명 |
+|------|------|--------|------|
+| `unique` | `String` | - | 인스턴스 식별자. `saveScroll` 사용 시 필수, 여러 인스턴스 공존 시 key 충돌 방지 |
+| `items` | `Array` | `[]` | 렌더링할 아이템 배열 |
+| `height` | `Number \| String` | - | 컨테이너 높이. 숫자면 px, 문자열이면 CSS 값 그대로 사용 (예: `500`, `'calc(100vh - 100px)'`) |
+| `rowHeight` | `Number` | `40` | 고정 높이 모드의 행 높이(px). autoHeight 모드에서는 초기 추정값 |
+| `autoHeight` | `Boolean` | `false` | 각 아이템의 실제 렌더링 높이를 자동 측정해 가변 높이 지원 |
+| `overscan` | `Number` | `5` | 뷰포트 앞뒤로 미리 렌더링할 아이템 수 |
+| `bottomGap` | `Number` | `0` | 리스트 하단 여백(px) |
+| `saveScroll` | `Boolean` | `false` | 스크롤 위치를 localStorage에 저장하고 마운트 시 복원. `unique`와 함께 사용 |
+| `disableVirtualScroll` | `Boolean` | `false` | 가상 스크롤 비활성화, 모든 아이템을 한 번에 렌더링 |
+| `groupKey` | `String` | `null` | 동일한 key를 가진 인스턴스들의 스크롤 위치를 동기화. `v-model:groups`와 함께 사용 |
 
-| Prop 이름     | 타입                  | 필수 여부 | 기본값    | 설명 |
-|---------------|-----------------------|-----------|-----------|------|
-| `items`       | `Array`               | ✅        | -         | 렌더링할 전체 아이템 배열이에요. |
-| `height`      | `Number` \| `String`  | ✅        | -         | 스크롤 영역의 높이 지정 값이에요. `100px`, `100%`, `100vh` 등도 가능해요! |
-| `saveScroll`  | `Boolean`             | ❌        | `false`   | 스크롤 위치를 `localStorage`에 저장하고 복원할지 여부예요. |
-| `rowHeight`   | `Number`              | ❌        | `40`      | 아이템의 기본(예상) 높이 값이에요. `autoHeight`가 꺼져있을 때 사용돼요. |
-| `autoHeight`  | `Boolean`             | ❌        | `false`   | 아이템 높이를 실제 DOM 기준으로 자동 측정할지 여부예요. 켜면 `ResizeObserver`를 사용해요. |
-| `overscan`    | `Number`              | ❌        | `5`       | 화면 위·아래로 렌더링할 여분 아이템 개수예요. 성능과 부드러운 스크롤을 위해 사용해요. |
-| `bottomGap`    | `Number`              | ❌        | `0`       | 테이블 최하단의 여백을 주고싶을 때 사용해요. |
-| `disableVirtualScroll`    | `Boolean`              | ❌        | false       | 가상 테이블 기능을 끄고싶을 때, 사용해요. 부분 로드 기능이 적용되지 않아요. |
-| `groupKey`  | `String`  |❌ |null|테이블간 스크롤 동기화|
+---
 
+## Slots
 
-*아래와 같이 사용*
+| Slot | Props | 설명 |
+|------|-------|------|
+| `header` | - | 스크롤 시 상단 고정되는 헤더 영역 |
+| `item` | `item`, `index` | 각 아이템 행 렌더링 |
 
+---
+
+## 기본 사용 예시
+
+### 고정 높이 모드
 ```vue
-<MsVirtualScroll :items="itemsAll" height="20vh" :auto-height="true" :rowHeight="41">
-  <template #default="{ item, index }">
-    <div>
-      <div>{{ item.name }}</div>
-      <div style="white-space: pre-wrap;">{{ item.description }}</div>
-      <!-- 커스터마이즈 가능한 내용들 -->
-    </div>
+<MsVirtualScroll
+  :items="list"
+  :height="500"
+  :row-height="40"
+>
+  <template #item="{ item, index }">
+    <div>{{ index }}: {{ item.name }}</div>
   </template>
 </MsVirtualScroll>
-
-const groups = ref({}) // 그룹화 할 경우 상위 바인딩 객체
-
-const itemsAll = ref([
-  {name: 'Item 1', description: 'Description for Item 1'},
-  {name: 'Item 2', description: 'Description for Item 2'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 4', description: 'Description for Item 3'},
-  {name: 'Item 5', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3Description for\n Item 3Description for Item 3Description\n for Item 3Description for \nItem 3Description for Item 3Des\ncription for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 3', description: 'Description for Item 3'},
-  {name: 'Item 300', description: 'Description for Item 3'}
-  // ... (많은 아이템들)
-])
 ```
 
-기본적인 무한 스크롤 동작에 대한 구현이며, 세부적인 사항은 추가 구현해서 쓰면 됨
+### 가변 높이 모드 (autoHeight)
+```vue
+<MsVirtualScroll
+  :items="list"
+  :height="500"
+  :row-height="40"
+  auto-height
+>
+  <template #item="{ item }">
+    <div>{{ item.description }}</div>
+  </template>
+</MsVirtualScroll>
+```
+
+### 헤더 + 스크롤 위치 저장
+```vue
+<MsVirtualScroll
+  unique="user-list"
+  :items="list"
+  :height="600"
+  :row-height="40"
+  save-scroll
+>
+  <template #header>
+    <div class="table-header">이름 / 나이 / 직책</div>
+  </template>
+  <template #item="{ item }">
+    <div>{{ item.name }}</div>
+  </template>
+</MsVirtualScroll>
+```
+
+### 스크롤 위치 동기화 (groupKey)
+여러 컬럼이 나란히 있을 때 세로 스크롤을 연동합니다.
+```vue
+<script setup>
+const sharedGroups = ref({})
+</script>
+
+<template>
+  <div style="display: flex">
+    <MsVirtualScroll
+      v-model:groups="sharedGroups"
+      group-key="main-table"
+      :items="columnA"
+      :height="500"
+      :row-height="40"
+    >
+      <template #item="{ item }">
+        <div>{{ item.name }}</div>
+      </template>
+    </MsVirtualScroll>
+
+    <MsVirtualScroll
+      v-model:groups="sharedGroups"
+      group-key="main-table"
+      :items="columnB"
+      :height="500"
+      :row-height="40"
+    >
+      <template #item="{ item }">
+        <div>{{ item.value }}</div>
+      </template>
+    </MsVirtualScroll>
+  </div>
+</template>
+```
+
+---
+
+## 주의사항
+
+- `saveScroll` 사용 시 반드시 `unique` prop을 지정해야 인스턴스 간 localStorage key 충돌이 없습니다.
+- `groupKey` 사용 시 부모에서 `ref({})` 로 만든 객체를 `v-model:groups` 로 전달해야 합니다.
+- `autoHeight` 모드에서 `rowHeight`는 측정 전 초기 추정값으로만 사용됩니다. 실제 행 높이와 가까울수록 초기 렌더링 정확도가 높아집니다.
+- `disableVirtualScroll`은 아이템 수가 적거나 디버깅 시에만 사용하세요. 아이템이 많으면 성능 저하가 발생합니다.
